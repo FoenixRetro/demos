@@ -2,11 +2,15 @@
 
 This demo demonstrates a sprite multiplexing technique for the Foenix Retro Systems F256 line of modern retro computers.
 
+![A screenful of colorful balls](MultiplexedSpritesDemo.png)
+
 The demo can be [downloaded here](demos/balls.bin). The demo and this write-up was authored by [Carsten Elton Sørensen](https://github.com/csoren), and is licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
 
 The platform provides 64 hardware sprites, the size of which can be 8x8, 16x16, 24x24 or 32x32 pixels. This demo uses 8x8 sprites and displays 280 free-moving sprites using 44 hardware sprites.
 
 Since only 44 8x8 hardware sprites are used, this technique can be suitable for "bullet hell" shooters, where the just the smaller bullets are multiplexed, leaving 20 hardware sprites for the hero and baddies.
+
+Roughly 50% of the available CPU cycles are spent on handling sprites, multiplexing, updating hardware registers and so forth.
 
 To try out the demo, the machine must be started in "Boot to RAM" mode. The demo must then be loaded to address 0, and the reset button will likely have to be pressed once to start it.
 
@@ -33,9 +37,9 @@ With the objects neatly sorted into buckets, it's time to race the beam. The pla
 
 Thinking about buckets and objects we realize that an object will, most of the time, not be fully contained within one bucket. It will straddle more than one bucket when it gets closer to the last line of its bucket. It might even straddle more than two buckets if it's taller than one bucket. Straddling more than two buckets is going to cause a headache, so let's decide to match the bucket height and maximum sprite size. In our case this is 8 lines.
 
-Buckets should be a short as possible. The taller they are, the more objects can fit in a bucket, which will require using more hardware sprites in order to display every object without flicker or cutting parts off. We have a self-imposed limit of only using 8x8 sprites, but the upshot of this is that we can display more objects in a bucket, which means more objects on screen in total. More bullets, and bullets are small, so 8x8 is fine. This seems like a fair limitation for our use case.
+Buckets should be a short as possible. The taller they are, the more objects can fit in a bucket, which will require using more hardware sprites in order to display every object without flicker or cutting parts off, or it will reduce the total number of sprites on screen. We have a self-imposed limit of only using 8x8 sprites, but the upshot of this is that we can display more objects in a bucket, which means more objects on screen in total. More bullets, and bullets are small, so 8x8 is fine. This seems like a fair limitation for our use case.
 
-With buckets 8 lines tall, we should then fire off a line interrupt every 8 lines and update some sprite registers for the upcoming objects. How do we keep track of when it's safe to reuse a sprite? To do this the technique of double buffering is used. In even buckets one set of sprites is used, and in odd buckets another set. This way we can update one set of sprites while displaying another, alternating between sets thus avoiding any objects being cut off prematurely.
+With buckets 8 lines tall, we should then fire off a line interrupt every 8 lines and update some sprite registers for the upcoming objects. How do we keep track of when it's safe to reuse a sprite? Well, we don't, instead the technique of double buffering is used. In even buckets one set of sprites is used, and in odd buckets another set. This way we can update one set of sprites while displaying another, alternating between sets thus avoiding any objects being cut off prematurely.
 
 Or so you would think. Let's draw a little and see what happens. We'll use buckets four lines tall in the illustration. Each line in the diagram is a scan line, and the line is prefixed with the bucket it belongs to, either `+` or `-`. Let's say we have three objects we want to display, but only two hardware sprites. The hardware sprites are illustrated by `0` and `1`. The three objects are in separate buckets
 
@@ -89,16 +93,14 @@ A worst case for sprite 0 is this:
 +      0
 ```
 
-The first instance of sprite 0 can't be any further down the screen, then it would change bucket. Which means we have one scan line to update the sprite registers. We need to hit the line exactly, which is easy enough, but then we also need to update the sprite registers.
+The first instance of sprite 0 can't be any further down the screen, then it would move into the next bucket. It will never cover the last line of the `-` bucket, which means we have exactly that one scan line to update the sprite registers if we want to avoid flicker. We need to hit the line exactly, which is easy enough with a line interrupt, but then we also need to update the sprite registers.
 
 Cut to the future where we determine through empirical testing that we need 22 sprites for this use case.
 
-We need to update 22 sets of sprite registers with a 6 MHz 6502. That's a pretty tall order.
+We need to update 22 sets of sprite registers with a 6 MHz 6502. That's a pretty tall order. We need to blast over coordinates as quickly as possible, and in the toolbox we find our old friend, self-modifying code. 
 
-We need to blast over coordinates as quickly as possible, and in the toolbox we find our old friend, self-modifying code. 
-
-This is a sequence of instructions for the first two hardware sprite registers:
-```
+This is a sequence of instructions for the first two sets of hardware sprite registers:
+```assembly
 lda	#<X_POS_0
 sta	$D904
 lda	#>X_POS_0
@@ -126,9 +128,9 @@ We have a sequence of instructions like this for each bucket, and sprite positio
 
 Yes, we burn through memory - each sprite update is 20 bytes, times 22 times the number of buckets (32), roughly 14 KiB. Oh, and we need to double buffer these too - we display one set while writing into another. 28 KiB. But that's the tradeoff if we need many objects on screen.
 
-You will probably have noticed the demo displays 4 differently colored objects, but we have only updated positions. Ideally we want to have arbitrary object graphics, and of course we can, but we need to include the three graphics pointers:
+You will probably have noticed the demo displays 4 differently colored objects, but we have only updated positions. Ideally we want to have arbitrary object graphics, and of course we can, but then we need to include the three graphics pointers:
 
-```
+```assembly
 lda	#<Graphics
 sta	$D901
 lda	#>Graphics
@@ -147,9 +149,13 @@ This is of course much slower and will likely reduce the number of sprites that 
 
 With slower moving objects Z-fighting will be much more noticable. That's another trade-off - sprite priorities are not handled in this demo and two objects' Z order may be swapped back and forth depending on other objects' positions.
 
+Another modification would be taller buckets, for instance buckets that are twice as tall as the maximum sprite height. This would leave more time than one scan line to update sprite registers if needed, but again at the expense of the total number of objects on screen.
+
 # Conclusion
 
-Multiplexing free-moving sprites can be a useful technique, especially if you are prepared to set certain limitations. It can be generalized, but at the expense of the total number of sprites that can be displayed, which may limit its usefulness. However, 128 sprites would still be better than 64.
+Multiplexing free-moving sprites can be a useful technique, especially if you are prepared to live with certain limitations. It can be generalized, but at the expense of the total number of sprites that can be displayed, which may limit its usefulness. However, 128 sprites would still be better than 64.
+
+It is very likely that a 65C816 equipped machine would be able to display more sprites due to its 16 bit accumulator.
 
 Hopefully this has inspired you to implement something like this yourself or improving the technique.
 
