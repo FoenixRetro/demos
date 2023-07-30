@@ -99,8 +99,8 @@ We need to blast over coordinates as quickly as possible, and in the toolbox we 
 
 This is a sequence of instructions for the first two hardware sprite registers:
 ```
-lda #<X_POS_0
-sta $D904
+lda	#<X_POS_0
+sta	$D904
 lda	#>X_POS_0
 sta	$D905
 lda	#<Y_POS_0
@@ -108,8 +108,8 @@ sta	$D906
 lda	#>Y_POS_0
 sta	$D907
 
-lda #<X_POS_1
-sta $D90C
+lda	#<X_POS_1
+sta	$D90C
 lda	#>X_POS_1
 sta	$D90D
 lda	#<Y_POS_1
@@ -129,12 +129,12 @@ Yes, we burn through memory - each sprite update is 20 bytes, times 22 times the
 You will probably have noticed the demo displays 4 differently colored objects, but we have only updated positions. Ideally we want to have arbitrary object graphics, and of course we can, but we need to include the three graphics pointers:
 
 ```
-lda #<Graphics
-sta $D901
-lda #>Graphics
-sta $D902
-lda #^Graphics
-sta $D903
+lda	#<Graphics
+sta	$D901
+lda	#>Graphics
+sta	$D902
+lda	#^Graphics
+sta	$D903
 lda	#>X_POS_0
 sta	$D905
 lda	#<Y_POS_0
