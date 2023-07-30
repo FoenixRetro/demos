@@ -17,7 +17,7 @@ fnxmgr --address 0 --binary balls.bin
 
 # Concept
 
-"Multiplexing" is a generic term that often means sharing one resource between several tasks. In the case of hardware it therefore means using one hardware to display not one, but several objects on screen. If the platform does not latch sprite X and Y coordinates, one can race the beam and modify sprite register during field scanning, before the new object's Y position is reached by the beam.
+"Multiplexing" is a generic term that often means sharing one resource between several tasks. In the case of hardware sprites it therefore means using one hardware sprite to display not one, but several objects on screen. If the platform does not latch sprite X and Y coordinates, one can race the beam and modify sprite register during field scanning, before the new object's Y position is reached by the beam.
 
 # Summary of algorithm
 
