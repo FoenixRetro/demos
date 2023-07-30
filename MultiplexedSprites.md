@@ -2,7 +2,7 @@
 
 This demo demonstrates a sprite multiplexing technique for the Foenix Retro Systems F256 line of modern retro computers.
 
-The demo can be [downloaded here](demos/balls.bin)
+The demo can be [downloaded here](demos/balls.bin). The demo and this write-up was authored by [Carsten Elton Sørensen](https://github.com/csoren), and is licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
 
 The platform provides 64 hardware sprites, the size of which can be 8x8, 16x16, 24x24 or 32x32 pixels. This demo uses 8x8 sprites and displays 280 free-moving sprites using 44 hardware sprites.
 
