@@ -143,13 +143,13 @@ lda	#>Y_POS_0
 sta	$D907
 ```
 
-This is of course much slower and will likely reduce the number of sprites that can be displayed per bucket without flicker. Or maybe the flicker is acceptable, that is up to you. In the demo, only one sprite register is updated, the least significant byte. Handily there's only 256 bytes of graphics and they happen to be page aligned, so the other pointer registers don't have to be updated.
+This is of course much slower and will likely reduce the number of sprites that can be displayed per bucket without flicker. Or maybe the flicker is acceptable, that is up to you. In the demo, only one graphics pointer register is updated, the least significant byte. Handily there's only 256 bytes of graphics and they happen to be page aligned, so the other pointer registers don't have to be updated.
 
 With slower moving objects Z-fighting will be much more noticable. That's another trade-off - sprite priorities are not handled in this demo and two objects' Z order may be swapped back and forth depending on other objects' positions.
 
 # Conclusion
 
-Multiplexing free-moving sprites can be a useful technique, especially if you are prepared to set certain limitations. It can be generalized, but at the expense of the total number of sprites that can be displayed, which may limit it's usefulness. However, 128 sprites would still be better than 64.
+Multiplexing free-moving sprites can be a useful technique, especially if you are prepared to set certain limitations. It can be generalized, but at the expense of the total number of sprites that can be displayed, which may limit its usefulness. However, 128 sprites would still be better than 64.
 
 Hopefully this has inspired you to implement something like this yourself or improving the technique.
 
