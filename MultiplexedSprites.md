@@ -4,20 +4,17 @@ This demo demonstrates a sprite multiplexing technique for the Foenix Retro Syst
 
 ![A screenful of colorful balls](MultiplexedSpritesDemo.png)
 
-The demo can be [downloaded here](demos/balls.bin). The demo and this write-up was authored by [Carsten Elton Sørensen](https://github.com/csoren), and is licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+**The demo can be [downloaded here](demos/balls.pgz).**
+
+The demo and this write-up was authored by [Carsten Elton Sørensen](https://github.com/csoren), and is licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/)
+
+The demo can be copied to the SD card and started from SuperBASIC with the command `/- balls.pgz`, or from DOS using `- balls.pgz`.
 
 The platform provides 64 hardware sprites, the size of which can be 8x8, 16x16, 24x24 or 32x32 pixels. This demo uses 8x8 sprites and displays 280 free-moving sprites using 44 hardware sprites.
 
 Since only 44 8x8 hardware sprites are used, this technique can be suitable for "bullet hell" shooters, where the just the smaller bullets are multiplexed, leaving 20 hardware sprites for the hero and baddies.
 
 Roughly 50% of the available CPU cycles are spent on handling sprites, multiplexing, updating hardware registers and so forth.
-
-To try out the demo, the machine must be started in "Boot to RAM" mode. The demo must then be loaded to address 0, and the reset button will likely have to be pressed once to start it.
-
-Depending on your platform, the following command may be suitable:
-```
-fnxmgr --address 0 --binary balls.bin
-```
 
 # Concept
 
